@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import LiveStreamPlayer from '../components/LiveStreamPlayer';
 import StreamChat from '../components/StreamChat';
 import RelatedStreams from '../components/RelatedStreams';
+import Avatar from '../components/Avatar';
 import Linkify from 'react-linkify';
 import '../styles/WatchStreamPage.css';
 
@@ -240,10 +241,11 @@ const WatchStreamPage = () => {
             <div className="watch-channel-section">
               <h3>Создатель</h3>
               <div className="watch-channel-card">
-                <img
-                  src={stream.channel.avatar || '/default-avatar.jpg'}
+                <Avatar 
+                  src={stream.channel.avatar}
                   alt={stream.channel.username}
-                  className="watch-channel-avatar"
+                  username={stream.channel.username}
+                  size="medium"
                 />
                 <div className="watch-channel-info">
                   <p className="watch-channel-name">{stream.channel.username}</p>
