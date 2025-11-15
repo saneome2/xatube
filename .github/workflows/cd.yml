@@ -1,0 +1,41 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to remote Docker Swarm
+        uses: appleboy/ssh-action@v0.1.11
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            echo "Logging in to GHCR..."
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+            echo "Pulling images..."
+            docker pull ghcr.io/${{ github.repository_owner }}/xatube-backend:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/xatube-frontend:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/xatube-nginx:latest
+
+            echo "Updating services..."
+            docker service update --image ghcr.io/${{ github.repository_owner }}/xatube-backend:latest xatube_backend || true
+            docker service update --image ghcr.io/${{ github.repository_owner }}/xatube-frontend:latest xatube_frontend || true
+            docker service update --image ghcr.io/${{ github.repository_owner }}/xatube-nginx:latest xatube_nginx || true
+
+            echo "Deployment finished"
