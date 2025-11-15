@@ -88,6 +88,8 @@ const TestStreamPage = () => {
   const streamCheckTimeoutRef = useRef(null);
 
   // Load user's stream key on component mount
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const loadStreamKey = async () => {
       try {
@@ -113,8 +115,7 @@ const TestStreamPage = () => {
     };
 
     loadStreamKey();
-  }, []);
-
+  }, [streamKey]);
   const handlePlay = () => {
     setIsPlaying(true);
     setError('');
@@ -324,7 +325,7 @@ const TestStreamPage = () => {
     return () => {
       clearInterval(streamCheckTimeoutRef.current);
     };
-  }, [isPlaying, streamActive, lastFragmentTime]);
+  }, [isPlaying, streamActive, lastFragmentTime, streamKey]);
 
   return (
       <div className="test-stream-container">

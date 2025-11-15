@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import VideoPlayer from '../components/VideoPlayer';
 import VideoComments from '../components/VideoComments';
@@ -12,7 +12,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const WatchVideoPage = () => {
   const { videoId } = useParams();
-  const navigate = useNavigate();
+  // navigate unused - removed to satisfy ESLint
   const { user: currentUser } = useAuth();
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,11 +26,29 @@ const WatchVideoPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
 
+  const checkSubscriptionStatus = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/subscriptions/check/${video.user_id}`,
+        {
+          credentials: 'include'
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsSubscribed(data.subscribed || false);
+      }
+    } catch (err) {
+      console.error('Failed to check subscription:', err);
+    }
+  }, [video, currentUser]);
+
   useEffect(() => {
     if (video && video.channel && currentUser) {
       checkSubscriptionStatus();
     }
-  }, [video, currentUser]);
+  }, [video, currentUser, checkSubscriptionStatus]);
 
   const fetchVideoDetails = async () => {
     try {
@@ -82,23 +100,7 @@ const WatchVideoPage = () => {
     }
   };
 
-  const checkSubscriptionStatus = async () => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/subscriptions/check/${video.user_id}`,
-        {
-          credentials: 'include'
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsSubscribed(data.subscribed || false);
-      }
-    } catch (err) {
-      console.error('Failed to check subscription:', err);
-    }
-  };
+  // checkSubscriptionStatus is defined above as useCallback
 
   const handleSubscribe = async () => {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LiveStreamPlayer from '../components/LiveStreamPlayer';
@@ -21,6 +21,7 @@ const PublicProfilePage = () => {
   const [error, setError] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (username) {
       // Проверяем, не является ли username зарезервированным словом
@@ -33,7 +34,7 @@ const PublicProfilePage = () => {
       
       fetchUserProfile();
     }
-  }, [username]);
+  }, [username, fetchUserProfile]);
 
   useEffect(() => {
     if (user) {
@@ -45,9 +46,10 @@ const PublicProfilePage = () => {
         fetchSchedule();
       }
     }
-  }, [user, activeTab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, activeTab, fetchStreams, fetchVideos, fetchSchedule]);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -75,9 +77,9 @@ const PublicProfilePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [username, navigate]);
 
-  const fetchUserChannel = async (userId) => {
+  const fetchUserChannel = useCallback(async (userId) => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/channels?user_id=${userId}`,
@@ -97,9 +99,9 @@ const PublicProfilePage = () => {
     } catch (err) {
       console.error('Ошибка при загрузке канала пользователя:', err);
     }
-  };
+  }, []);
 
-  const checkSubscriptionStatus = async (channelId) => {
+  const checkSubscriptionStatus = useCallback(async (channelId) => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/subscriptions/${channelId}/is-subscribed`,
@@ -115,9 +117,9 @@ const PublicProfilePage = () => {
     } catch (err) {
       console.error('Ошибка при проверке подписки:', err);
     }
-  };
+  }, []);
 
-  const fetchStreams = async () => {
+  const fetchStreams = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -137,9 +139,9 @@ const PublicProfilePage = () => {
     } catch (err) {
       console.error('Ошибка при загрузке стримов:', err);
     }
-  };
+  }, [user]);
 
-  const fetchVideos = async () => {
+  const fetchVideos = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -159,9 +161,9 @@ const PublicProfilePage = () => {
       console.error('Ошибка при загрузке видео:', err);
       setVideos([]);
     }
-  };
+  }, [user]);
 
-  const fetchSchedule = async () => {
+  const fetchSchedule = useCallback(async () => {
     if (!userChannel) return;
 
     try {
@@ -181,7 +183,7 @@ const PublicProfilePage = () => {
       console.error('Ошибка при загрузке расписания:', err);
       setSchedule([]);
     }
-  };
+  }, [userChannel]);
 
   const handleSubscribe = () => {
     if (isSubscribed) {

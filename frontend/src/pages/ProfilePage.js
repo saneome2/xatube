@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StreamModal from '../components/StreamModal';
@@ -52,7 +52,10 @@ export const ProfilePage = () => {
   const [editingVideo, setEditingVideo] = useState(null);
   const [videoEditLoading, setVideoEditLoading] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // Intentionally not adding functions to dependencies to avoid unnecessary re-runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (activeTab === 'settings') {
       fetchStreamKey();
     } else if (activeTab === 'streams') {
@@ -65,7 +68,7 @@ export const ProfilePage = () => {
     } else if (activeTab === 'subscriptions') {
       fetchSubscriptions();
     }
-  }, [activeTab]);
+  }, [activeTab, fetchSchedule, fetchStreamKey, fetchStreams, fetchVideos, fetchSubscriptions]);
 
   useEffect(() => {
     console.log('=== USER CHANGED ===');
@@ -76,7 +79,7 @@ export const ProfilePage = () => {
     }
   }, [user]);
 
-  const fetchStreams = async () => {
+  const fetchStreams = useCallback(async () => {
     try {
       // Получаем канал пользователя (создаем если нужно)
       const channel = await getUserChannel();
@@ -107,9 +110,9 @@ export const ProfilePage = () => {
       console.error('Ошибка при загрузке стримов:', err);
       setStreams([]);
     }
-  };
+  }, [user]);
 
-  const getUserChannel = async () => {
+  const getUserChannel = useCallback(async () => {
     try {
       console.log('getUserChannel: user.id =', user.id, 'type:', typeof user.id);
       const response = await fetch(
@@ -172,7 +175,7 @@ export const ProfilePage = () => {
       // В случае ошибки возвращаем объект с id пользователя
       return { id: user.id };
     }
-  };
+  }, [user]);
 
   const handleCreateStream = async (formData) => {
     setStreamModalLoading(true);
@@ -295,7 +298,7 @@ export const ProfilePage = () => {
     setEditingStream(null);
   };
 
-  const fetchVideos = async () => {
+  const fetchVideos = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/streams/user/${user.id}/videos`,
@@ -310,9 +313,9 @@ export const ProfilePage = () => {
     } catch (err) {
       console.error('Ошибка при загрузке видео:', err);
     }
-  };
+  }, [user]);
 
-  const fetchSchedule = async () => {
+  const fetchSchedule = useCallback(async () => {
     try {
       setScheduleLoading(true);
       const channel = await getUserChannel();
@@ -334,9 +337,9 @@ export const ProfilePage = () => {
     } finally {
       setScheduleLoading(false);
     }
-  };
+  }, [user]);
 
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/subscriptions/user/subscriptions`,
@@ -353,7 +356,7 @@ export const ProfilePage = () => {
     } catch (err) {
       console.error('Ошибка при загрузке подписок:', err);
     }
-  };
+  }, [user]);
 
   const handleScheduleSave = async (scheduleData) => {
     try {
@@ -663,7 +666,7 @@ export const ProfilePage = () => {
     }
   };
 
-  const fetchStreamKey = async () => {
+  const fetchStreamKey = useCallback(async () => {
     try {
       console.log('Fetching stream key...');
       
@@ -699,7 +702,7 @@ export const ProfilePage = () => {
     } catch (err) {
       console.error('Ошибка при получении ключа потока:', err);
     }
-  };
+  }, [user]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();

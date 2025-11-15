@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/Player.css';
 
 export const PlayerPage = ({ streamId }) => {
+  // unused user kept for future features, explicit lint disable
   // eslint-disable-next-line no-unused-vars
   const { user } = useAuth();
   const [stream, setStream] = useState(null);
@@ -11,43 +12,45 @@ export const PlayerPage = ({ streamId }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchStreamData = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/streams/${streamId || 1}`
+        );
+
+        if (!response.ok) throw new Error('Ошибка при получении информации о потоке');
+        const data = await response.json();
+        setStream(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchStreamStatus = async () => {
+      if (!streamId) return;
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/streams/${streamId || 1}/status`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setStreamStatus(data);
+        }
+      } catch (err) {
+        console.error('Error fetching stream status:', err);
+      }
+    };
+
     fetchStreamData();
     const interval = setInterval(fetchStreamStatus, 5000);
     return () => clearInterval(interval);
   }, [streamId]);
 
-  const fetchStreamData = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/streams/${streamId || 1}`
-      );
-
-      if (!response.ok) throw new Error('Ошибка при получении информации о потоке');
-      const data = await response.json();
-      setStream(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStreamStatus = async () => {
-    if (!streamId) return;
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/streams/${streamId || 1}/status`
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setStreamStatus(data);
-      }
-    } catch (err) {
-      console.error('Error fetching stream status:', err);
-    }
-  };
+  /* fetchStreamData and fetchStreamStatus are implemented in useEffect to satisfy lint rules */
 
   const formatDuration = (seconds) => {
     const hours = Math.floor(seconds / 3600);

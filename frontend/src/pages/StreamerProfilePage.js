@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LiveStreamPlayer from '../components/LiveStreamPlayer';
 import StreamChat from '../components/StreamChat';
@@ -10,7 +10,7 @@ import '../styles/StreamerProfilePage.css';
 
 const StreamerProfilePage = () => {
   const { streamKey } = useParams();
-  const navigate = useNavigate();
+  // navigate removed (unused)
   const { user: currentUser } = useAuth();
 
   const [stream, setStream] = useState(null);

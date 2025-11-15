@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Statistics.css';
 
@@ -12,11 +12,8 @@ export const StatisticsPage = () => {
   const [error, setError] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState(30);
 
-  useEffect(() => {
-    fetchStatistics();
-  }, [selectedPeriod]);
-
-  const fetchStatistics = async () => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchStatistics = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -54,7 +51,13 @@ export const StatisticsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedPeriod]);
+
+  useEffect(() => {
+    fetchStatistics();
+  }, [fetchStatistics]);
+
+  
 
   if (loading) {
     return <div className="stats-container">Загрузка статистики...</div>;

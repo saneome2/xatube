@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LiveStreamPlayer from '../components/LiveStreamPlayer';
 import StreamChat from '../components/StreamChat';
@@ -10,7 +10,7 @@ import '../styles/WatchStreamPage.css';
 
 const WatchStreamPage = () => {
   const { streamKey } = useParams();
-  const navigate = useNavigate();
+  // navigate not used - remove to avoid ESLint no-unused-vars
   const { user: currentUser } = useAuth();
   const [stream, setStream] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,9 +33,10 @@ const WatchStreamPage = () => {
 
   useEffect(() => {
     if (stream && stream.channel && currentUser) {
-      checkSubscriptionStatus();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        checkSubscriptionStatus();
     }
-  }, [stream, currentUser]);
+  }, [stream, currentUser, checkSubscriptionStatus]);
 
   const fetchStreamDetails = async () => {
     try {
@@ -86,7 +87,7 @@ const WatchStreamPage = () => {
     }
   };
 
-  const checkSubscriptionStatus = async () => {
+  const checkSubscriptionStatus = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/subscriptions/${stream.channel.id}/is-subscribed`,
@@ -105,7 +106,7 @@ const WatchStreamPage = () => {
     } catch (err) {
       console.error('Ошибка при проверке подписки:', err);
     }
-  };
+  }, [stream, currentUser]);
 
   const handleSubscribe_API = async () => {
     if (!stream || !stream.channel) return;

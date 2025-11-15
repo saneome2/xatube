@@ -28,7 +28,6 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const AppLayout = ({ children }) => {
-  const { user } = useAuth();
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState(() => {
     const path = location.pathname;

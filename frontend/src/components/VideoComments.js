@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Avatar from './Avatar';
 import '../styles/VideoComments.css';
@@ -13,11 +13,7 @@ const VideoComments = ({ videoId }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchComments();
-  }, [videoId]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -36,7 +32,13 @@ const VideoComments = ({ videoId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [videoId]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  /* fetchComments implemented above as useCallback to stabilize dependency */
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
