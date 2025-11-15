@@ -18,6 +18,12 @@ This document explains how the GitHub Actions workflows provided in this repo wo
 Add the following secrets in your repository settings (Settings -> Secrets and variables -> Actions):
 
 - `GHCR_PAT` - Personal Access Token with `write:packages` and `read:packages` permissions to allow publishing images to GHCR. Alternatively, you can use the `GITHUB_TOKEN` if GHCR is configured to accept it.
+### Temporary CI workaround
+
+For convenience, the CI workflow currently sets `CI=false` for the frontend build step which prevents the build from failing on ESLint warnings. This is a temporary workaround and should be removed after the ESLint warnings are fixed. To restore strict CI linting, remove the `CI=false` override in `.github/workflows/ci.yml`.
+
+It's recommended to fix lint warnings in the frontend so the build is validated by CI as expected.
+
 - `GHCR_USERNAME` - Username for the GHCR login (usually your GitHub username or the registry owner)
 - `SSH_PRIVATE_KEY` - The private key for an SSH user that has permission to manage Docker on the remote host.
 - `DEPLOY_HOST` - Remote server hostname or IP

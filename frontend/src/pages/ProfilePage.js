@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define, react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

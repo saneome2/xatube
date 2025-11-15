@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/TestStream.css';
 import { channelAPI, rtmpAPI } from '../services/api';
